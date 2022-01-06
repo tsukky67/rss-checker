@@ -11,7 +11,7 @@ client = discord.Client()
 CHANNEL_ID = 927990496813539361
 
 
-async def message():
+async def check():
     url = 'https://feed43.com/6143843436874854.xml'  # rssのアドレス
     feed = feedparser.parse(url)
     title = feed.entries[0].title
@@ -25,7 +25,7 @@ async def message():
 @client.event
 async def on_ready():
     print('ログイン成功')
-    await message()
+    await check()
 
 
 #メッセージ受信時に実行される処理
@@ -40,6 +40,6 @@ async def on_message(message):
     if message.content.startswith('hey'):
         await message.channel.send('hello')
     elif message.content.startswith('new'):
-        await message()
+        await check()
 
 client.run(TOKEN)
