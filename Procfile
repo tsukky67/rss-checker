@@ -1,1 +1,1 @@
-disordbot: python discordbot.py
+disordbot: python RSSchecker.py
