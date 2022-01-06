@@ -10,14 +10,15 @@ client = discord.Client()
 
 CHANNEL_ID = 927990496813539361
 
+
 async def message():
-    url = 'https://maywork.net/feed/'  # rssのアドレス
+    url = 'https://feed43.com/6143843436874854.xml'  # rssのアドレス
     feed = feedparser.parse(url)
     title = feed.entries[0].title
     link = feed.entries[0].link
 
     channel = client.get_channel(CHANNEL_ID)
-    
+
     await channel.send(title+' '+link)
 
 
@@ -25,7 +26,7 @@ async def message():
 async def on_ready():
     print('ログイン成功')
     await message()
-    
+
 
 #メッセージ受信時に実行される処理
 
@@ -38,5 +39,7 @@ async def on_message(message):
     #受信したメッセージが"hey"だったとき"hello"を返す
     if message.content.startswith('hey'):
         await message.channel.send('hello')
+    elif message.content.startswith('new'):
+        await message()
 
 client.run(TOKEN)
