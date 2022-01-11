@@ -21,17 +21,43 @@ def connect():
 
     return con
 
-if __name__ == '__main__':
-    con = connect()
+
+def select_execute(con, sql):
+    with con.cursor() as cur:
+        cur.execute(sql)
+        rows = cur.fetchall()
+
+        return rows
 
 
 async def check():
-    url = 'https://feed43.com/6143843436874854.xml'  # rssのアドレス
-    feed = feedparser.parse(url)
-    title = feed.entries[0].title
-    link = feed.entries[0].link
+    if __name__ == '__main__':
+        con = connect()
 
-    await channel.send(title+' '+link)
+        sql = 'select * from pages'
+
+        res = select_execute(con, sql)
+        for r in res:
+            feed = feedparser.parse(r[0])
+            title = feed.entries[0].title
+            link = feed.entries[0].link
+
+            def updatet_execute(con, slq):
+                with con.cursor() as cur:
+                    cur.execute(sql, (link, r[0]))
+
+                con.commit()
+
+            sql = """update pages set latest_link = %s WHERE url = %s"""
+
+            updatet_execute(con, sql)
+
+            sql = """select distinct from users where url = '""" + r[0] + """'"""
+
+            res = select_execute(con, sql)
+
+            channel = client.get_channel(int(res[0][0]))
+            await channel.send(title+' '+link)
 
 
 @client.event
@@ -39,27 +65,40 @@ async def on_ready():
     print('ログイン成功')
     await check()
 
-
-#メッセージ受信時に実行される処理
-
-
-
 @client.event
 async def on_message(message):
     if message.content.startswith('/setrss'):  # コマンド指定
-        cmd_search = str(message.content)  # コマンドを文字列化
-        name = cmd_search[6:]  # 文字列化したコマンドからチャンネル名を抽出
-        
-        def insert_execute(con, slq):
-            with con.cursor() as cur:
-                cur.execute(sql, (message.channnel.id, name))
+        cmd_serch = str(message.content)  # コマンドを文字列化
+        url = cmd_serch[8:]
+        try:
+            feed = feedparser.parse(url)
+            title = feed.entries[0].title
+            link = feed.entries[0].link
 
-            con.commit()
-        if __name__ == '__main__':
-            con = connect()
-            sql = """insert into pages(id,name) values(%s,%s)"""
-            insert_execute(con, sql)
+        except IndexError:
+            await message.channel.send("アクセスできなかったよ")
 
-    await message.channel.send("多分できてる")
+        else:
+            if __name__ == '__main__':
+                con = connect()
+
+                def insert_execute(con, slq):
+                  with con.cursor() as cur:
+                    cur.execute(sql, (message.channel.id, url))
+                  con.commit()
+                sql = """insert into users(channel_id,url) values(%s,%s)"""
+
+                insert_execute(con, sql)
+
+                def insert_execute2(con, slq):
+                    with con.cursor() as cur:
+                        cur.execute(sql, (url, link))
+                    con.commit()
+                sql = """insert into pages(url,latest_link) values(%s,%s)"""
+
+                insert_execute2(con, sql)
+
+                await message.channel.send("多分できてるよ")
+    # if message.content.startswith('/delrss'):
 
 client.run(TOKEN)
