@@ -2,3 +2,4 @@ discord.py
 nest_asyncio
 feedparser
 psycopg2
+asyncio
