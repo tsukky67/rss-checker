@@ -101,7 +101,7 @@ async def on_message(message):
         userlist = select_execute(con, sql) 
         for i in range(len(userlist)):
             await message.channel.send(i +":"+ userlist[i])
-        mchannel = m.channel
+        mchannel = message.channel
         def delcheck(m):
             # メッセージが `おはよう` かつ メッセージを送信したチャンネルが
             # コマンドを打ったチャンネルという条件
