@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import feedparser
 import psycopg2
@@ -7,20 +8,13 @@ nest_asyncio.apply()
 TOKEN = "OTI3OTkzMzIzNDM0Njk2NzI0.YdSTIQ.BN72FbC3_SaYMkiGVH0Jr5e-9pY"
 client = discord.Client()
 
-#bot起動完了時に実行される処理
-
-CHANNEL_ID = 927990496813539361
-
-
 def connect():
     con = psycopg2.connect("host=" + "ec2-34-226-134-154.compute-1.amazonaws.com" +
                            " port=" + "5432" +
                            " dbname=" + "dhk84rh4qge1r" +
                            " user=" + "fpftzugpxpxnol" +
                            " password=" + "9367ccbf29a56fc3fd472fc57bf54841f6feadb6aaac62bad4ff0557fd618f0d")
-
     return con
-
 
 def select_execute(con, sql):
     with con.cursor() as cur:
@@ -28,7 +22,6 @@ def select_execute(con, sql):
         rows = cur.fetchall()
 
         return rows
-
 
 async def check():
     if __name__ == '__main__':
@@ -99,8 +92,43 @@ async def on_message(message):
                 insert_execute2(con, sql)
 
                 await message.channel.send("多分できてるよ")
-    # if message.content.startswith('/delrss'):
     if message.content.startswith('/checkrss'):
         await check()
+    if message.content.startswith('/delrss'):
+        await message.channel.send("どのデータを削除しますか？数字を入力してください")
+        con = connect()
+        sql = """select * from  users WHERE channel_id = '""" + message.channel.id + "'"
+        userlist = select_execute(con, sql) 
+        for i in range(len(userlist)):
+            await message.channel.send(i +":"+ userlist[i])
+        mchannel = m.channel
+        def delcheck(m):
+            # メッセージが `おはよう` かつ メッセージを送信したチャンネルが
+            # コマンドを打ったチャンネルという条件
+            return 0 <= m.content <= len(userlist) and m.channel == mchannel
+
+        try:
+            msg = await client.wait_for('message', delcheck=delcheck, timeout=60)
+
+        except asyncio.TimeoutError:
+            await message.channel.send(f'時間切れです')
+
+        else:
+            def delete_execute(con, slq):
+                with con.cursor() as cur:
+                    cur.execute(sql)
+
+                con.commit()
+
+            if __name__ == '__main__':
+                con = connect()
+
+                sql = """delete
+                            from users
+                        where channnel_id = '"""+ userlist[message.channel.content]+"'"
+
+                # データ削除
+                delete_execute(con, sql)
+
 
 client.run(TOKEN)
