@@ -100,5 +100,7 @@ async def on_message(message):
 
                 await message.channel.send("多分できてるよ")
     # if message.content.startswith('/delrss'):
+    if message.content.startswith('/checkrss'):
+        await check()
 
 client.run(TOKEN)
