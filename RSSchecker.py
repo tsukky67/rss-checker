@@ -8,6 +8,7 @@ nest_asyncio.apply()
 TOKEN = "OTI3OTkzMzIzNDM0Njk2NzI0.YdSTIQ.BN72FbC3_SaYMkiGVH0Jr5e-9pY"
 client = discord.Client()
 
+
 def connect():
     con = psycopg2.connect("host=" + "ec2-34-226-134-154.compute-1.amazonaws.com" +
                            " port=" + "5432" +
@@ -16,6 +17,7 @@ def connect():
                            " password=" + "9367ccbf29a56fc3fd472fc57bf54841f6feadb6aaac62bad4ff0557fd618f0d")
     return con
 
+
 def select_execute(con, sql):
     with con.cursor() as cur:
         cur.execute(sql)
@@ -23,13 +25,22 @@ def select_execute(con, sql):
 
         return rows
 
+
+def delete_execute(con, slq):
+                with con.cursor() as cur:
+                    cur.execute(slq)
+
+                con.commit()
+
+
 async def check():
     if __name__ == '__main__':
         con = connect()
 
-        sql = 'select * from pages'
+        sql = 'select distinct url,latest_link from pages'
 
         res = select_execute(con, sql)
+
         for r in res:
             feed = feedparser.parse(r[0])
             title = feed.entries[0].title
@@ -40,23 +51,78 @@ async def check():
                     cur.execute(sql, (link, r[0]))
 
                 con.commit()
+            sql = """select * from pages where url = '""" + r[0] + """'"""
+            if select_execute(con, sql) != link:
 
-            sql = """update pages set latest_link = %s WHERE url = %s"""
+              sql = """update pages set latest_link = %s WHERE url = %s"""
 
-            updatet_execute(con, sql)
+              updatet_execute(con, sql)
 
-            sql = """select distinct from users where url = '""" + r[0] + """'"""
+              sql = """select distinct channel_id,url from users where url = '""" + \
+                  r[0] + """'"""
 
-            res = select_execute(con, sql)
+              res1 = select_execute(con, sql)
 
-            channel = client.get_channel(int(res[0][0]))
-            await channel.send(title+' '+link)
+              if res1 == []:
+                if __name__ == '__main__':
+                  con = connect()
+                  sql = """delete
+                              from pages
+                                where url = '""" + r[0] + "'"
+
+              else:
+                channel = client.get_channel(int(res1[0][0]))
+
+                await channel.send(title+' '+link)
+
+
+async def nowcheck():
+    if __name__ == '__main__':
+        con = connect()
+
+        sql = 'select distinct url,latest_link from pages'
+
+        res = select_execute(con, sql)
+
+        for r in res:
+            feed = feedparser.parse(r[0])
+            title = feed.entries[0].title
+            link = feed.entries[0].link
+
+            def updatet_execute(con, slq):
+                with con.cursor() as cur:
+                    cur.execute(sql, (link, r[0]))
+
+                con.commit()
+            sql = """select * from pages where url = '""" + r[0] + """'"""
+            if select_execute(con, sql) != link:
+
+              sql = """update pages set latest_link = %s WHERE url = %s"""
+
+              updatet_execute(con, sql)
+
+              sql = """select distinct channel_id,url from users where url = '""" + r[0] + """'"""
+
+              res1 = select_execute(con, sql)
+
+              if res1 == []:
+                if __name__ == '__main__':
+                  con = connect()
+                  sql = """delete
+                              from pages
+                                where url = '""" + r[0] + "'"
+
+              else:
+                channel = client.get_channel(int(res1[0][0]))
+
+                await channel.send(title+' '+link)
 
 
 @client.event
 async def on_ready():
     print('ログイン成功')
     await check()
+
 
 @client.event
 async def on_message(message):
@@ -92,43 +158,56 @@ async def on_message(message):
                 insert_execute2(con, sql)
 
                 await message.channel.send("多分できてるよ")
+
     if message.content.startswith('/checkrss'):
-        await check()
+        sql = """select distinct channel_id,url from users where channel_id = '""" + message.channel.id + """'"""
+        res = select_execute(con, sql)
+        for r in res:
+            feed = feedparser.parse(r[1])
+            title = feed.entries[1].title
+            link = feed.entries[1].link
+
+            def updatet_execute(con, slq):
+                with con.cursor() as cur:
+                    cur.execute(sql, (link, r[1]))
+
+                con.commit()
+            
+            if select_execute(con, sql) != link:
+
+                sql = """update pages set latest_link = %s WHERE url = %s"""
+
+                updatet_execute(con, sql)
+
+                await message.channel.send(title+' '+link) 
+
     if message.content.startswith('/delrss'):
         await message.channel.send("どのデータを削除しますか？数字を入力してください")
         con = connect()
-        sql = """select * from  users WHERE channel_id = '""" + message.channel.id + "'"
-        userlist = select_execute(con, sql) 
+        sql = """select * from  users WHERE channel_id = '""" + \
+            str(message.channel.id) + "'"
+        userlist = select_execute(con, sql)
         for i in range(len(userlist)):
-            await message.channel.send(i +":"+ userlist[i])
+            await message.channel.send(str(i) + ":" + str(userlist[i][1]))
         mchannel = message.channel
-        def delcheck(m):
+
+        def check(m):
             # メッセージが `おはよう` かつ メッセージを送信したチャンネルが
             # コマンドを打ったチャンネルという条件
-            return 0 <= m.content <= len(userlist) and m.channel == mchannel
+            return 0 <= int(m.content) <= len(userlist) and m.channel == mchannel
 
         try:
-            msg = await client.wait_for('message', delcheck=delcheck, timeout=60)
-
+            msg = await client.wait_for('message', check=check, timeout=60)
         except asyncio.TimeoutError:
             await message.channel.send(f'時間切れです')
 
         else:
-            def delete_execute(con, slq):
-                with con.cursor() as cur:
-                    cur.execute(sql)
-
-                con.commit()
-
             if __name__ == '__main__':
                 con = connect()
-
                 sql = """delete
                             from users
-                        where channnel_id = '"""+ userlist[message.channel.content]+"'"
-
+                              where url = '""" + userlist[msg.content][1]+"'"
                 # データ削除
                 delete_execute(con, sql)
-
-
+            await message.channel.send("削除が終了しました")
 client.run(TOKEN)
