@@ -123,8 +123,8 @@ async def on_message(message):
         res = select_execute(con, sql)
         for r in res:
             feed = feedparser.parse(r[1])
-            title = feed.entries[1].title
-            link = feed.entries[1].link
+            title = feed.entries[0].title
+            link = feed.entries[0].link
 
             await message.channel.send(title+' '+link)
 
