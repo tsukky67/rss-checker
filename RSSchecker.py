@@ -1,3 +1,4 @@
+import os
 import asyncio
 import discord
 import feedparser
@@ -5,7 +6,7 @@ import psycopg2
 import nest_asyncio
 nest_asyncio.apply()
 
-TOKEN = "OTI3OTkzMzIzNDM0Njk2NzI0.YdSTIQ.BN72FbC3_SaYMkiGVH0Jr5e-9pY"
+TOKEN = os.environ['DISCORD_BOT_TOKEN']
 client = discord.Client()
 
 
@@ -92,7 +93,7 @@ async def on_message(message):
             link = feed.entries[0].link
 
         except IndexError:
-            await message.channel.send("正しいRSSリンクを貼り付けてください")
+            await message.channel.send("正しいRSSリンクを入力してください")
 
         else:
             if __name__ == '__main__':
