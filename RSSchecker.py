@@ -120,8 +120,7 @@ async def on_message(message):
     if message.content.startswith('/checkrss'):
         if __name__ == '__main__':
             con = connect()
-            sql = """select distinct channel_id,url from users where channel_id = '""" + \
-                str(message.channel.id) + """'"""
+            sql = """select distinct channel_id,url from users where channel_id = '""" + str(message.channel.id) + """'"""
             res = select_execute(con, sql)
             for r in res:
                 feed = feedparser.parse(r[1])
