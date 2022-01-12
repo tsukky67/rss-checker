@@ -60,8 +60,7 @@ async def check():
 
                 updatet_execute(con, sql)
 
-                sql = """select distinct channel_id,url from users where url = '""" + \
-                    r[0] + """'"""
+                sql = """select distinct channel_id,url from users where url = '""" + r[0] + """'"""
 
                 res1 = select_execute(con, sql)
 
@@ -132,8 +131,7 @@ async def on_message(message):
     if message.content.startswith('/delrss'):
         await message.channel.send("どのデータを削除しますか？数字を入力してください")
         con = connect()
-        sql = """select * from  users WHERE channel_id = '""" + \
-            str(message.channel.id) + "'"
+        sql = """select * from  users WHERE channel_id = '""" + str(message.channel.id) + "'"
         userlist = select_execute(con, sql)
         for i in range(len(userlist)):
             await message.channel.send(str(i) + ":" + str(userlist[i][1]))
