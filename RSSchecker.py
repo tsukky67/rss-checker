@@ -51,29 +51,30 @@ async def check():
                     cur.execute(sql, (link, r[0]))
 
                 con.commit()
+
             sql = """select * from pages where url = '""" + r[0] + """'"""
+
             if select_execute(con, sql) != link:
 
-              sql = """update pages set latest_link = %s WHERE url = %s"""
+                sql = """update pages set latest_link = %s WHERE url = %s"""
 
-              updatet_execute(con, sql)
+                updatet_execute(con, sql)
 
-              sql = """select distinct channel_id,url from users where url = '""" + \
-                  r[0] + """'"""
+                sql = """select distinct channel_id,url from users where url = '""" + \
+                    r[0] + """'"""
 
-              res1 = select_execute(con, sql)
+                res1 = select_execute(con, sql)
 
-              if res1 == []:
-                if __name__ == '__main__':
-                  con = connect()
-                  sql = """delete
-                              from pages
-                                where url = '""" + r[0] + "'"
+                if res1 == []:
+                    if __name__ == '__main__':
+                        sql = """delete
+                                from pages
+                                    where url = '""" + r[0] + "'"
+                    delete_execute(con, sql)
+                else:
+                    channel = client.get_channel(int(res1[0][0]))
 
-              else:
-                channel = client.get_channel(int(res1[0][0]))
-
-                await channel.send(title+' '+link)
+                    await channel.send(title+' '+link)
 
 @client.event
 async def on_ready():
@@ -124,19 +125,7 @@ async def on_message(message):
             title = feed.entries[1].title
             link = feed.entries[1].link
 
-            def updatet_execute(con, slq):
-                with con.cursor() as cur:
-                    cur.execute(sql, (link, r[1]))
-
-                con.commit()
-            
-            if select_execute(con, sql) != link:
-
-                sql = """update pages set latest_link = %s WHERE url = %s"""
-
-                updatet_execute(con, sql)
-
-                await message.channel.send(title+' '+link) 
+            await message.channel.send(title+' '+link) 
 
     if message.content.startswith('/delrss'):
         await message.channel.send("どのデータを削除しますか？数字を入力してください")
