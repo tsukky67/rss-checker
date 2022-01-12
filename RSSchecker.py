@@ -155,7 +155,7 @@ async def on_message(message):
                 con = connect()
                 sql = """delete
                             from users
-                              where url = '""" + userlist[msg.content][1]+"'"
+                              where url = '""" + userlist[int(msg.content)][1]+"'"
                 # データ削除
                 delete_execute(con, sql)
             await message.channel.send("削除が終了しました")
