@@ -93,7 +93,7 @@ async def on_message(message):
             link = feed.entries[0].link
 
         except IndexError:
-            await message.channel.send("アクセスできなかったよ")
+            await message.channel.send("正しいRSSリンクを貼り付けてください")
 
         else:
             if __name__ == '__main__':
@@ -115,7 +115,7 @@ async def on_message(message):
 
                 insert_execute2(con, sql)
 
-                await message.channel.send("多分できてるよ")
+                await message.channel.send("登録が完了しました")
 
     if message.content.startswith('/checkrss'):
         if __name__ == '__main__':
