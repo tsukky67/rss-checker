@@ -58,7 +58,7 @@ async def check():
             page = select_execute(con, sql)
             
             print(page)
-            print(page[1])
+            print(page[0][1])
 
             if  page[1] != link:
 
