@@ -54,8 +54,9 @@ async def check():
                 con.commit()
 
             sql = """select * from pages where url = '""" + r[0] + """'"""
+            
 
-            if select_execute(con, sql) != link:
+            if select_execute(con, sql)[1] != link:
 
                 sql = """update pages set latest_link = %s WHERE url = %s"""
 
