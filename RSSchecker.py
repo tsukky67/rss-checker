@@ -60,7 +60,7 @@ async def check():
             print(page)
             print(page[0][1])
 
-            if  page[1] != link:
+            if  page[0][1] != link:
 
                 sql = """update pages set latest_link = %s WHERE url = %s"""
 
