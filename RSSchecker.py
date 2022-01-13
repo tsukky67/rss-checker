@@ -79,6 +79,7 @@ async def check():
 @client.event
 async def on_ready():
     print('ログイン成功')
+    await client.get_channel(927990496813539361).send('ログインできた')
     await check()
 
 
