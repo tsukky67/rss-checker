@@ -4,6 +4,7 @@ import discord
 import feedparser
 import psycopg2
 import nest_asyncio
+import urllib.parse
 nest_asyncio.apply()
 
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
@@ -11,11 +12,16 @@ client = discord.Client()
 
 
 def connect():
-    con = psycopg2.connect("host=" + "ec2-34-226-134-154.compute-1.amazonaws.com" +
-                           " port=" + "5432" +
-                           " dbname=" + "dhk84rh4qge1r" +
-                           " user=" + "fpftzugpxpxnol" +
-                           " password=" + "9367ccbf29a56fc3fd472fc57bf54841f6feadb6aaac62bad4ff0557fd618f0d")
+    urllib.parse.uses_netloc.append("postgres")
+    url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
+    con = psycopg2.connect(
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+        host=url.hostname,
+        port=url.port
+    )
+                           
     return con
 
 
