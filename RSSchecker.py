@@ -73,15 +73,14 @@ async def check():
                                 from pages
                                     where url = '""" + r[0] + "'"
                     delete_execute(con, sql)
-            else:
-                channel = client.get_channel(int(res1[0][0]))
 
-                await channel.send(title+' '+link)
+                else:
+                    channel = client.get_channel(int(res1[0][0]))
+                    await channel.send(title+' '+link)
 
 @client.event
 async def on_ready():
     print('ログイン成功')
-    await client.get_channel(927990496813539361).send('ログインできた')
     await check()
 
 
