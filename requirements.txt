@@ -3,4 +3,4 @@ nest_asyncio
 feedparser
 psycopg2
 asyncio
-urllib.parse
+urllib3
