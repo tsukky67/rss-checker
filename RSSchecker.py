@@ -55,8 +55,11 @@ async def check():
 
             sql = """select * from pages where url = '""" + r[0] + """'"""
             
+            page = select_execute(con, sql)
 
-            if select_execute(con, sql)[1] != link:
+            print(page[1])
+            
+            if  page[1] != link:
 
                 sql = """update pages set latest_link = %s WHERE url = %s"""
 
